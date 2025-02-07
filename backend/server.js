@@ -21,7 +21,7 @@ const extractEmails = (text) => {
   const matches = [...text.matchAll(emailRegex)];
   return matches.map(match => match[1].trim()); // Trim spaces before returning emails
 };
-
+ 
 // Process uploaded PDF(s)
 app.post("/upload", upload.array("pdfs"), async (req, res) => {
   try {
@@ -44,14 +44,21 @@ app.post("/upload", upload.array("pdfs"), async (req, res) => {
     const worksheet = xlsx.utils.aoa_to_sheet([["Emails"], ...Array.from(allEmails).map((email) => [email])]);
     xlsx.utils.book_append_sheet(workbook, worksheet, "Extracted Emails");
     console.log("excel data is created");
-    const filePath = path.join(__dirname, "output", "emails.xlsx");
+    // const filePath = path.join(__dirname, "output", "emails.xlsx");
+    const filePath = "uploads/emails.xlsx";
     console.log("file path created:" + filePath);
-    xlsx.writeFile(workbook, filePath);
-    console.log("list converted to excel file");
+    try {
+      xlsx.writeFile(workbook, filePath);
+      console.log("list converted to excel file");
+    } catch (writeError) {
+      console.error("Error writing the Excel file:", writeError);
+      res.status(500).json({ error: "Error writing the Excel file" });
+    }
 
     res.download(filePath, "emails.xlsx", () => {
       fs.unlinkSync(filePath); // Delete Excel after download
     });
+    console.log("file successfully deleted after download");
   } catch (error) {
     res.status(500).json({ error: "Error processing PDF(s)" });
   }

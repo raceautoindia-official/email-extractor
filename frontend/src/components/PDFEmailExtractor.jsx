@@ -28,10 +28,12 @@ function PDFEmailExtractor() {
         responseType: "blob", // Expect binary file response
         headers: { "Content-Type": "multipart/form-data" }
       });
+      console.log("uploaded files successfully");
       
       // Create a URL for the file download
       const url = window.URL.createObjectURL(new Blob([response.data]));
       setDownloadLink(url);
+      console.log("download url created successfully");
     } catch (err) {
         console.log(err);
       setError("Failed to process PDF files. Please try again.");
